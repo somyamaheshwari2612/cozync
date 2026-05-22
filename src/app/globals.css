@@ -1,0 +1,55 @@
+@import "tailwindcss";
+
+:root {
+  --font-gochi: "Gochi Hand", cursive;
+  --font-patrick: "Patrick Hand", cursive;
+  --font-nunito: "Nunito", sans-serif;
+  --font-cormorant: "Cormorant Upright", serif;
+  --font-emoji: "Noto Color Emoji", sans-serif;
+
+  --color-parchment: #fdf8f3;
+  --color-linen: #fffbf7;
+  --color-terracotta: #c17a5b;
+  --color-terracotta-light: #fde8d8;
+  --color-terracotta-dark: #a0563a;
+  --color-sand: #e8c5a8;
+  --color-sage: #b5cdb0;
+  --color-lavender: #c9b8d8;
+  --color-walnut: #3d2f25;
+  --color-muted: #9a7b6b;
+  --color-hint: #bba89c;
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  background: #fdf8f3;
+  color: #3d2f25;
+  font-family: var(--font-nunito), sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+::selection {
+  background: #fde8d8;
+  color: #a0563a;
+}
+
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-track { background: #fdf8f3; }
+::-webkit-scrollbar-thumb {
+  background: #e8c5a8;
+  border-radius: 999px;
+}
+
+img.twemoji {
+  height: 1em;
+  width: 1em;
+  margin: 0 1px;
+  vertical-align: -0.15em;
+  display: inline-block;
+}
