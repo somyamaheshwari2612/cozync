@@ -79,7 +79,7 @@ export const STICKER_PACKS: StickerPack[] = [
     id: "seasonal-comfort",
     name: "Seasonal Comfort",
     description: "Earned through a full week of showing up",
-    unlockHint: "Complete a 7-day streak to unlock",
+    unlockHint: "Complete a 21-day streak to unlock",
     stickers: [
       { id: "maple",     emoji: "🍂", name: "autumn",     openmoji: "1F342" },
       { id: "snowflake", emoji: "❄️", name: "snowflake",  openmoji: "2744" },
