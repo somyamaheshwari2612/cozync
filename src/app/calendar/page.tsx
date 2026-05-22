@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef} from "react";
+import { useState, useEffect, useRef } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { CalendarGrid } from "@/components/calendar/CalendarGrid";
 import { MonthNav } from "@/components/calendar/MonthNav";
@@ -12,21 +12,27 @@ import { OnboardingToast } from "@/components/ui/OnboardingToast";
 import { UnlockCelebration } from "@/components/ui/UnlockCelebration";
 import { useUnlockDetector } from "@/hooks/useUnlockDetector";
 import { MonthStats } from "@/components/calendar/MonthStats";
-
-const NAV_ITEMS = [
-  { openmoji: "1F4C5", label: "Calendar", active: true  },
-  { openmoji: "2728",  label: "Stickers", active: false },
-  { openmoji: "1F4CA", label: "Stats",    active: false },
-  { openmoji: "2699",  label: "Settings", active: false },
-];
+// Ensure this import path matches your codebase structure
+import { StickersPage } from "@/components/StickersPage";
 
 export default function CalendarPage() {
   const today = new Date();
-  const [year,         setYear]         = useState(today.getFullYear());
-  const [month,        setMonth]        = useState(today.getMonth() + 1);
+  const [year, setYear] = useState(today.getFullYear());
+  const [month, setMonth] = useState(today.getMonth() + 1);
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
-  const [isMobile,     setIsMobile]     = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(false);
+  
+  // Dynamic navigation state tracking
+  const [activeNav, setActiveNav] = useState("Calendar");
+
+  const NAV_ITEMS = [
+    { openmoji: "1F4C5", label: "Calendar" },
+    { openmoji: "2728",  label: "Stickers" },
+    { openmoji: "1F4CA", label: "Stats"    },
+    { openmoji: "2699",  label: "Settings" },
+  ];
+
   const { entries, loadMonth, loadAllEntries, allEntries } = useEntryStore();
   const { load: loadUser, meta } = useUserStore();
   const { newlyUnlocked, clearUnlock } = useUnlockDetector(allEntries);
@@ -35,13 +41,13 @@ export default function CalendarPage() {
   useEffect(() => { loadAllEntries(); }, [loadAllEntries]);
   
   useEffect(() => {
-      const seen = localStorage.getItem("cz_onboarding") === "true";
-      if (!seen && allEntries.length > 0) {
-        setTimeout(() => setShowOnboarding(true), 1000);
-      }
-    }, [allEntries.length]);
+    const seen = localStorage.getItem("cz_onboarding") === "true";
+    if (!seen && allEntries.length > 0) {
+      setTimeout(() => setShowOnboarding(true), 1000);
+    }
+  }, [allEntries.length]);
 
-  useEffect(() => { loadUser(); },            [loadUser]);
+  useEffect(() => { loadUser(); }, [loadUser]);
   
   useEffect(() => {
     const check = () => setIsMobile(window.innerWidth < 1024);
@@ -61,22 +67,22 @@ export default function CalendarPage() {
 
   // Streak calculation
   let streak = 0;
-{
-  const todayStr = today.toISOString().split("T")[0];
-  const yesterday = new Date(today);
-  yesterday.setDate(yesterday.getDate() - 1);
-  const yesterdayStr = yesterday.toISOString().split("T")[0];
-  const dateSet = new Set(allEntries.map(e => e.date));
+  {
+    const todayStr = today.toISOString().split("T")[0];
+    const yesterday = new Date(today);
+    yesterday.setDate(yesterday.getDate() - 1);
+    const yesterdayStr = yesterday.toISOString().split("T")[0];
+    const dateSet = new Set(allEntries.map(e => e.date));
 
-  // Start from today if logged, otherwise from yesterday
-  let cursor = dateSet.has(todayStr) ? todayStr : yesterdayStr;
-  while (dateSet.has(cursor)) {
-    streak++;
-    const d = new Date(cursor);
-    d.setDate(d.getDate() - 1);
-    cursor = d.toISOString().split("T")[0];
+    // Start from today if logged, otherwise from yesterday
+    let cursor = dateSet.has(todayStr) ? todayStr : yesterdayStr;
+    while (dateSet.has(cursor)) {
+      streak++;
+      const d = new Date(cursor);
+      d.setDate(d.getDate() - 1);
+      cursor = d.toISOString().split("T")[0];
+    }
   }
-}
 
   return (
     <div style={{
@@ -129,7 +135,7 @@ export default function CalendarPage() {
             }}>✦</span>
           </div>
 
-          {/* Nav */}
+          {/* Desktop Nav */}
           <nav style={{
             display: "flex",
             flexDirection: "column",
@@ -138,7 +144,12 @@ export default function CalendarPage() {
             flexShrink: 0,
           }}>
             {NAV_ITEMS.map(item => (
-              <NavItem key={item.label} item={item} />
+              <NavItem 
+                key={item.label} 
+                item={item} 
+                isActive={activeNav === item.label}
+                onClick={() => setActiveNav(item.label)}
+              />
             ))}
           </nav>
 
@@ -146,49 +157,49 @@ export default function CalendarPage() {
           <div style={{ flex: 1 }} />
 
           {/* Streak — always pinned to bottom */}
-        <div style={{
-          padding: "16px 16px 28px",
-          textAlign: "center",
-          borderTop: "1px solid #f5ece4",
-          flexShrink: 0,
-        }}>
           <div style={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            gap: "6px",
-            marginBottom: "6px",
+            padding: "16px 16px 28px",
+            textAlign: "center",
+            borderTop: "1px solid #f5ece4",
+            flexShrink: 0,
           }}>
-            <span style={{
-              fontFamily: "var(--font-patrick), cursive",
-              fontSize: "12px",
-              color: "#bba89c",
+            <div style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: "6px",
+              marginBottom: "6px",
             }}>
-              current streak
-            </span>
-            <StreakInfoButton />
+              <span style={{
+                fontFamily: "var(--font-patrick), cursive",
+                fontSize: "12px",
+                color: "#bba89c",
+              }}>
+                current streak
+              </span>
+              <StreakInfoButton />
+            </div>
+            <div style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: "6px",
+            }}>
+              <span style={{
+                fontFamily: "var(--font-cormorant), serif",
+                fontSize: "40px",
+                fontWeight: 600,
+                color: "#c17a5b",
+                lineHeight: 1,
+              }}>{streak}</span>
+              <StickerImg openmoji="1F525" size={30} alt="fire" />
+            </div>
           </div>
-          <div style={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            gap: "6px",
-          }}>
-            <span style={{
-              fontFamily: "var(--font-cormorant), serif",
-              fontSize: "40px",
-              fontWeight: 600,
-              color: "#c17a5b",
-              lineHeight: 1,
-            }}>{streak}</span>
-            <StickerImg openmoji="1F525" size={30} alt="fire" />
-          </div>
-        </div>
         </aside>
       )}
 
       {/* ── Main content ── */}
-     <div style={{
+      <div style={{
         flex: 1,
         display: "flex",
         flexDirection: "column",
@@ -198,7 +209,7 @@ export default function CalendarPage() {
         marginLeft: isMobile ? "0px" : "200px",
       }}>
 
-        {/* Calendar + Day panel row */}
+        {/* Dynamic Inner Panel View Row */}
         <div style={{
           flex: 1,
           display: "flex",
@@ -206,7 +217,7 @@ export default function CalendarPage() {
           overflow: "hidden",
         }}>
 
-          {/* Calendar zone */}
+          {/* Core App Stage View Container */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -220,25 +231,55 @@ export default function CalendarPage() {
               boxSizing: "border-box",
             }}
           >
-          
-            <MonthNav
-              year={year}
-              month={month}
-              onPrev={handlePrev}
-              onNext={handleNext}
-            />
-            <CalendarGrid
-              year={year}
-              month={month}
-              entries={entries}
-              selectedDate={selectedDate}
-              onSelectDate={setSelectedDate}
-            />
-              <MonthStats
-                entries={allEntries}
-                year={year}
-                month={month}
-              />
+            {activeNav === "Calendar" && (
+              <>
+                <MonthNav year={year} month={month} onPrev={handlePrev} onNext={handleNext} />
+                <CalendarGrid
+                  year={year}
+                  month={month}
+                  entries={entries}
+                  selectedDate={selectedDate}
+                  onSelectDate={setSelectedDate}
+                />
+                <MonthStats entries={allEntries} year={year} month={month} />
+              </>
+            )}
+            
+            {activeNav === "Stickers" && (
+              <StickersPage />
+            )}
+            
+            {activeNav === "Stats" && (
+              <div style={{ padding: "20px 0" }}>
+                <p style={{
+                  fontFamily: "var(--font-cormorant), serif",
+                  fontSize: "28px",
+                  color: "#c17a5b",
+                  marginBottom: "8px",
+                }}>Stats coming soon ✦</p>
+                <p style={{
+                  fontFamily: "var(--font-patrick), cursive",
+                  fontSize: "14px",
+                  color: "#9a7b6b",
+                }}>detailed insights about your journey</p>
+              </div>
+            )}
+            
+            {activeNav === "Settings" && (
+              <div style={{ padding: "20px 0" }}>
+                <p style={{
+                  fontFamily: "var(--font-cormorant), serif",
+                  fontSize: "28px",
+                  color: "#c17a5b",
+                  marginBottom: "8px",
+                }}>Settings coming soon ✦</p>
+                <p style={{
+                  fontFamily: "var(--font-patrick), cursive",
+                  fontSize: "14px",
+                  color: "#9a7b6b",
+                }}>customization options on the way</p>
+              </div>
+            )}
           </motion.div>
 
           {/* Day panel — desktop side panel */}
@@ -322,6 +363,7 @@ export default function CalendarPage() {
             {NAV_ITEMS.map(item => (
               <button
                 key={item.label}
+                onClick={() => setActiveNav(item.label)}
                 style={{
                   flex: 1,
                   display: "flex",
@@ -338,7 +380,7 @@ export default function CalendarPage() {
                 <span style={{
                   fontFamily: "var(--font-patrick), cursive",
                   fontSize: "11px",
-                  color: item.active ? "#c17a5b" : "#9a7b6b",
+                  color: activeNav === item.label ? "#c17a5b" : "#9a7b6b",
                 }}>
                   {item.label}
                 </span>
@@ -359,15 +401,25 @@ export default function CalendarPage() {
       <UnlockCelebration
         pack={newlyUnlocked}
         onDone={clearUnlock}
+        onUseStickers={() => setActiveNav("Stickers")}
       />
     </div>
   );
 }
 
-function NavItem({ item }: { item: typeof NAV_ITEMS[0] }) {
+function NavItem({
+  item,
+  isActive,
+  onClick,
+}: {
+  item: { openmoji: string; label: string };
+  isActive: boolean;
+  onClick: () => void;
+}) {
   const [hovered, setHovered] = useState(false);
   return (
     <button
+      onClick={onClick}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
       style={{
@@ -376,7 +428,7 @@ function NavItem({ item }: { item: typeof NAV_ITEMS[0] }) {
         gap: "10px",
         padding: "9px 12px",
         borderRadius: "12px",
-        background: item.active
+        background: isActive
           ? "#fde8d8"
           : hovered
           ? "#fdf0e8"
@@ -392,13 +444,14 @@ function NavItem({ item }: { item: typeof NAV_ITEMS[0] }) {
       <span style={{
         fontFamily: "var(--font-patrick), cursive",
         fontSize: "15px",
-        color: item.active ? "#a0563a" : "#9a7b6b",
+        color: isActive ? "#a0563a" : "#9a7b6b",
       }}>
         {item.label}
       </span>
     </button>
   );
 }
+
 function StreakInfoButton() {
   const [open, setOpen] = useState(false);
   const btnRef = useRef<HTMLButtonElement>(null);

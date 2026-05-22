@@ -8,6 +8,7 @@ import { type StickerPack } from "@/constants/stickers";
 interface UnlockCelebrationProps {
   pack: StickerPack | null;
   onDone: () => void;
+  onUseStickers: () => void;
 }
 
 const PARTICLES = [
@@ -86,7 +87,7 @@ function playUnlockChime() {
   }
 }
 
-export function UnlockCelebration({ pack, onDone }: UnlockCelebrationProps) {
+export function UnlockCelebration({ pack, onDone, onUseStickers }: UnlockCelebrationProps) {
   const hasPlayed = useRef(false);
 
   // Play chime once when pack appears
@@ -278,7 +279,10 @@ export function UnlockCelebration({ pack, onDone }: UnlockCelebrationProps) {
               transition={{ delay: 0.95 }}
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              onClick={onDone}
+              onClick={() => {
+                onDone();
+                onUseStickers();
+              }}
               style={{
                 background: "#c17a5b",
                 color: "#fffbf7",
