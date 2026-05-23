@@ -74,7 +74,7 @@ export function TutorialHint() {
               fontSize: "26px", fontWeight: 600,
               color: "#c17a5b", marginBottom: "20px",
             }}>
-              welcome to Cozync Cozync
+              welcome to Cozync ✦
             </div>
 
             <div style={{ display: "flex", flexDirection: "column", gap: "16px", marginBottom: "24px" }}>

@@ -103,7 +103,7 @@ export default function CalendarPage() {
           display: "flex",
           flexDirection: "column",
           height: "100vh",
-          overflow: "hidden",
+          overflow: "visible", // Allowed popovers to show past desktop bounds smoothly
           flexShrink: 0,
           position: "fixed",
           top: 0,
@@ -169,7 +169,7 @@ export default function CalendarPage() {
               }}>
                 current streak
               </span>
-              <StreakInfoButton />
+              <StreakInfoButton isMobile={false} />
             </div>
             <div style={{
               display: "flex",
@@ -236,7 +236,7 @@ export default function CalendarPage() {
               }}>✦</span>
             </div>
             
-            {/* Clamped Mobile Header Streak Chip */}
+            {/* Updated Mobile Header Streak Chip */}
             <div style={{
               display: "flex",
               alignItems: "center",
@@ -259,7 +259,7 @@ export default function CalendarPage() {
                 lineHeight: 1,
               }}>{streak}</span>
               <StickerImg openmoji="1F525" size={20} alt="streak" />
-              <StreakInfoButton />
+              <StreakInfoButton isMobile={true} />
             </div>
           </div>
         )}
@@ -388,7 +388,7 @@ export default function CalendarPage() {
                 maxHeight: "80vh",
                 overflowY: "auto",
                 zIndex: 100,
-                boxShadow: "0 -4px 32px rgba(61,47,37,0.12)",
+                boxShadow: "0 -4px 32 rgba(61,47,37,0.12)",
               }}
             >
               <div style={{
@@ -508,40 +508,14 @@ function NavItem({
   );
 }
 
-function StreakInfoButton() {
+// Complete cross-platform fix for the streak explanation dimensional popover
+function StreakInfoButton({ isMobile = false }: { isMobile?: boolean }) {
   const [open, setOpen] = useState(false);
-  const btnRef = useRef<HTMLButtonElement>(null);
-  const [pos, setPos] = useState({ bottom: 0, left: 0 });
-
-  function handleOpen() {
-    if (btnRef.current) {
-      const rect = btnRef.current.getBoundingClientRect();
-      const tooltipWidth = 240;
-      
-      // Calculate normal midpoint horizontal center alignment
-      let left = rect.left + rect.width / 2;
-      
-      // Clamp left boundary edge alignment to safely manage viewports
-      if (left + tooltipWidth / 2 > window.innerWidth - 16) {
-        left = window.innerWidth - tooltipWidth / 2 - 16;
-      }
-      if (left - tooltipWidth / 2 < 16) {
-        left = tooltipWidth / 2 + 16;
-      }
-      
-      setPos({
-        bottom: window.innerHeight - rect.top + 8,
-        left,
-      });
-    }
-    setOpen(o => !o);
-  }
 
   return (
-    <>
+    <div style={{ position: "relative", display: "inline-flex", alignItems: "center" }}>
       <button
-        ref={btnRef}
-        onClick={handleOpen}
+        onClick={() => setOpen(o => !o)}
         style={{
           width: "16px",
           height: "16px",
@@ -566,30 +540,55 @@ function StreakInfoButton() {
       <AnimatePresence>
         {open && (
           <>
+            {/* Global background overlay backdrop click handler */}
             <div
               onClick={() => setOpen(false)}
-              style={{ position: "fixed", inset: 0, zIndex: 98 }}
-            />
-            <motion.div
-              initial={{ opacity: 0, y: 6, scale: 0.95 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: 6, scale: 0.95 }}
-              transition={{ duration: 0.2 }}
               style={{
                 position: "fixed",
-                bottom: pos.bottom,
-                left: pos.left,
-                transform: "translateX(-50%)",
-                width: "240px",
-                maxWidth: "calc(100vw - 32px)", // Safe fallback viewport buffer
-                background: "#fffbf7",
-                border: "1.5px solid #e8c5a8",
-                borderRadius: "16px",
-                padding: "16px",
-                boxShadow: "0 8px 32px rgba(61,47,37,0.14)",
-                zIndex: 9999, // Raised to fully clear layout containers
-                textAlign: "left",
+                inset: 0,
+                background: isMobile ? "rgba(61,47,37,0.15)" : "transparent",
+                zIndex: 9998,
               }}
+            />
+            
+            <motion.div
+              initial={isMobile ? { y: "100%", x: "-50%" } : { opacity: 0, y: 10, scale: 0.95 }}
+              animate={isMobile ? { y: 0, x: "-50%" } : { opacity: 1, y: 0, scale: 1 }}
+              exit={isMobile ? { y: "100%", x: "-50%" } : { opacity: 0, y: 10, scale: 0.95 }}
+              transition={{ duration: 0.25, ease: "easeInOut" }}
+              style={
+                isMobile
+                  ? {
+                      /* Snapped layout for mobile devices */
+                      position: "fixed",
+                      bottom: "20px",
+                      left: "50%",
+                      width: "300px",
+                      maxWidth: "calc(100vw - 32px)",
+                      background: "#fffbf7",
+                      border: "1.5px solid #e8c5a8",
+                      borderRadius: "20px",
+                      padding: "20px",
+                      boxShadow: "0 12px 40px rgba(61,47,37,0.2)",
+                      zIndex: 9999,
+                      textAlign: "left",
+                    }
+                  : {
+                      /* Relative position for desktop sidebar */
+                      position: "absolute",
+                      bottom: "28px",
+                      left: "50%",
+                      transform: "translateX(-50%)",
+                      width: "240px",
+                      background: "#fffbf7",
+                      border: "1.5px solid #e8c5a8",
+                      borderRadius: "16px",
+                      padding: "16px",
+                      boxShadow: "0 8px 32px rgba(61,47,37,0.14)",
+                      zIndex: 100,
+                      textAlign: "left",
+                    }
+              }
             >
               <p style={{
                 fontFamily: "var(--font-cormorant), serif",
@@ -634,7 +633,7 @@ function StreakInfoButton() {
                   background: "#fde8d8",
                   border: "none",
                   borderRadius: "999px",
-                  padding: "7px",
+                  padding: "8px",
                   fontFamily: "var(--font-patrick), cursive",
                   fontSize: "13px",
                   color: "#a0563a",
@@ -647,6 +646,6 @@ function StreakInfoButton() {
           </>
         )}
       </AnimatePresence>
-    </>
+    </div>
   );
 }
