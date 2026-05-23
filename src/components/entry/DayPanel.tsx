@@ -130,22 +130,22 @@ export function DayPanel({ date, onClose }: DayPanelProps) {
   }, [date, getEntry]);
 
   const handleSave = useCallback(async () => {
-    setIsSaving(true);
-    const stickers = selectedSticker
-      ? [{ packId: "default", stickerId: selectedSticker }]
-      : [];
-    const cleanWins = wins.filter((w) => w.trim().length > 0);
+  setIsSaving(true);
+  const stickers = selectedSticker
+    ? [{ packId: "default", stickerId: selectedSticker }]
+    : [];
+  const cleanWins = wins.filter((w) => w.trim().length > 0);
 
-    await saveEntry(date, {
-      mood,
-      note: note.trim(),
-      stickers,
-      wins: cleanWins,
-    });
+  await saveEntry(date, {
+    mood,
+    note: note.trim(),
+    stickers,
+    wins: cleanWins,
+  });
 
-    setIsSaving(false);
-    setSavedOnce(true);
-  }, [date, mood, note, wins, selectedSticker, saveEntry]);
+  setIsSaving(false);
+  setSavedOnce(true);
+}, [date, mood, note, wins, selectedSticker, saveEntry]);
 
   // Derived tracking point to break array reference lifecycle loop
   const winsString = JSON.stringify(wins);
@@ -553,25 +553,31 @@ export function DayPanel({ date, onClose }: DayPanelProps) {
             </AnimatePresence>
 
             <motion.button
-              onClick={handleSave}
-              whileHover={{ scale: 1.04 }}
-              whileTap={{ scale: 0.96 }}
-              style={{
-                background: "#c17a5b",
-                color: "#fffbf7",
-                border: "none",
-                borderRadius: "999px",
-                padding: "10px 22px",
-                fontFamily: "var(--font-patrick), cursive",
-                fontSize: "14px",
-                cursor: "pointer",
-                whiteSpace: "nowrap",
-                flexShrink: 0,
-                boxShadow: "0 2px 8px rgba(193,122,91,0.25)",
-              }}
-            >
-              save entry ✦
-            </motion.button>
+            onClick={async () => {
+              await handleSave();
+              // On mobile, close the panel after saving so user can see the calendar
+              if (window.innerWidth < 1024 && onClose) {
+                setTimeout(onClose, 800);
+              }
+            }}
+            whileHover={{ scale: 1.04 }}
+            whileTap={{ scale: 0.96 }}
+            style={{
+              background: "#c17a5b",
+              color: "#fffbf7",
+              border: "none",
+              borderRadius: "999px",
+              padding: "10px 22px",
+              fontFamily: "var(--font-patrick), cursive",
+              fontSize: "14px",
+              cursor: "pointer",
+              whiteSpace: "nowrap",
+              flexShrink: 0,
+              boxShadow: "0 2px 8px rgba(193,122,91,0.25)",
+            }}
+          >
+            save entry ✦
+          </motion.button>
           </div>
         </div>
       )}

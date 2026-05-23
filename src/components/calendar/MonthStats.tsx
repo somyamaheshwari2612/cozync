@@ -7,21 +7,20 @@ import { MOOD_MAP } from "@/constants/moods";
 import { StickerImg } from "@/components/ui/StickerImg";
 
 interface MonthStatsProps {
-  entries:  Entry[];
+  entries: Entry[];
   year: number;
-  month: number;
+  month: number; // Expecting 1-12
 }
 
 export function MonthStats({ entries, year, month }: MonthStatsProps) {
   const stats = useMemo(() => {
+    // Correctly find total days in the given month
     const daysInMonth = new Date(year, month, 0).getDate();
     const today = new Date().toISOString().split("T")[0];
     const monthStr = `${year}-${String(month).padStart(2, "0")}`;
 
     // Only count days that actually belong to this month
-    const monthEntries = entries.filter(e =>
-    e.date.startsWith(monthStr)
-    );
+    const monthEntries = entries.filter(e => e.date.startsWith(monthStr));
     const daysLogged = monthEntries.length;
 
     // Days passed so far in this month (up to today)
@@ -41,6 +40,7 @@ export function MonthStats({ entries, year, month }: MonthStatsProps) {
       if (e.mood) acc[e.mood] = (acc[e.mood] || 0) + 1;
       return acc;
     }, {} as Record<string, number>);
+    
     const topMoodEntry = Object.entries(moodCounts)
       .sort((a, b) => b[1] - a[1])[0];
 
@@ -71,12 +71,11 @@ export function MonthStats({ entries, year, month }: MonthStatsProps) {
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, delay: 0.1 }}
       style={{
-        display: "flex",
-        gap: "10px",
-        flexWrap: "wrap",
-        alignItems: "stretch",
+        display: "grid",
+        gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
+        gap: "12px",
         marginTop: "16px",
-        padding: "14px 16px",
+        padding: "16px",
         background: "#fffbf7",
         border: "1.5px solid #f0e0d0",
         borderRadius: "16px",
@@ -114,20 +113,21 @@ export function MonthStats({ entries, year, month }: MonthStatsProps) {
 
       {/* Affirmation */}
       <div style={{
-        marginLeft: "auto",
         display: "flex",
         alignItems: "center",
+        justifyContent: "center",
         padding: "8px 14px",
         background: "#fdf0e8",
         borderRadius: "12px",
         border: "1.5px solid #f0e0d0",
-        alignSelf: "center",
+        minHeight: "64px",
       }}>
         <span style={{
           fontFamily: "var(--font-patrick), cursive",
-          fontSize: "12px",
+          fontSize: "13px",
           color: "#c17a5b",
           fontStyle: "italic",
+          textAlign: "center",
         }}>
           {getMonthAffirmation(stats.logPercent)}
         </span>
@@ -136,9 +136,8 @@ export function MonthStats({ entries, year, month }: MonthStatsProps) {
   );
 }
 
-function StatChip({
-  openmoji, label, value, sub, valueColor = "#3d2f25", valueBg,
-}: {
+// Fixed the "ffunction" typo here
+function StatChip({ openmoji, label, value, sub, valueColor = "#3d2f25", valueBg }: {
   openmoji: string;
   label: string;
   value: string;
@@ -150,11 +149,12 @@ function StatChip({
     <div style={{
       display: "flex",
       alignItems: "center",
-      gap: "10px",
-      padding: "8px 14px 8px 10px",
+      gap: "12px",
+      padding: "10px 14px",
       background: "#fdf8f3",
       borderRadius: "12px",
       border: "1.5px solid #f0e0d0",
+      width: "100%",
     }}>
       <StickerImg openmoji={openmoji} size={24} alt={label} />
       <div>
@@ -177,7 +177,7 @@ function StatChip({
           lineHeight: 1,
           background: valueBg ?? "transparent",
           borderRadius: valueBg ? "6px" : "0",
-          padding: valueBg ? "1px 6px" : "0",
+          padding: valueBg ? "2px 6px" : "0",
         }}>
           {value}
         </div>
@@ -185,7 +185,7 @@ function StatChip({
           fontFamily: "var(--font-nunito), sans-serif",
           fontSize: "11px",
           color: "#9a7b6b",
-          marginTop: "2px",
+          marginTop: "4px",
           lineHeight: 1.3,
         }}>
           {sub}

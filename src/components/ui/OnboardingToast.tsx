@@ -17,22 +17,24 @@ export function OnboardingToast({ visible, onDismiss }: OnboardingToastProps) {
           animate={{ opacity: 1, y: 0, scale: 1 }}
           exit={{ opacity: 0, y: 40, scale: 0.95 }}
           transition={{ duration: 0.35, ease: [0.25, 0.1, 0.25, 1] }}
-          style={{
-            position: "fixed",
-            bottom: "28px",
-            left: "50%",
-            transform: "translateX(-50%)",
-            zIndex: 200,
-            width: "min(480px, calc(100vw - 48px))",
-            background: "#fffbf7",
-            border: "1.5px solid #e8c5a8",
-            borderRadius: "20px",
-            padding: "20px 24px",
-            boxShadow: "0 8px 40px rgba(61,47,37,0.14)",
-            display: "flex",
-            flexDirection: "column",
-            gap: "12px",
-          }}
+         style={{
+          position: "fixed",
+          bottom: "80px", // above mobile nav
+          left: "50%",
+          transform: "translateX(-50%)",
+          zIndex: 200,
+          width: "min(480px, calc(100vw - 32px))",
+          background: "#fffbf7",
+          border: "1.5px solid #e8c5a8",
+          borderRadius: "20px",
+          padding: "20px 24px",
+          boxShadow: "0 8px 40px rgba(61,47,37,0.14)",
+          display: "flex",
+          flexDirection: "column",
+          gap: "12px",
+          maxHeight: "70vh",
+          overflowY: "auto",
+        }}
         >
           {/* Header */}
           <div style={{

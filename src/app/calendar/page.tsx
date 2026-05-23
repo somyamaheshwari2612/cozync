@@ -136,22 +136,70 @@ export default function CalendarPage() {
           </div>
 
           {/* Desktop Nav */}
-          <nav style={{
-            display: "flex",
-            flexDirection: "column",
-            gap: "4px",
-            padding: "0 16px",
-            flexShrink: 0,
-          }}>
-            {NAV_ITEMS.map(item => (
-              <NavItem 
-                key={item.label} 
-                item={item} 
-                isActive={activeNav === item.label}
-                onClick={() => setActiveNav(item.label)}
-              />
-            ))}
-          </nav>
+          {isMobile && (
+  <nav style={{
+    display: "flex",
+    flexDirection: "row",
+    borderTop: "1.5px solid #f0e0d0",
+    background: "#fffbf7",
+    paddingBottom: "env(safe-area-inset-bottom)",
+  }}>
+    {NAV_ITEMS.map(item => (
+      <button
+        key={item.label}
+        onClick={() => setActiveNav(item.label)}
+        style={{
+          flex: 1,
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          gap: "3px",
+          padding: "10px 4px 8px",
+          background: "none",
+          border: "none",
+          cursor: "pointer",
+        }}
+      >
+        <StickerImg openmoji={item.openmoji} size={22} alt={item.label} />
+        <span style={{
+          fontFamily: "var(--font-patrick), cursive",
+          fontSize: "11px",
+          color: activeNav === item.label ? "#c17a5b" : "#9a7b6b",
+        }}>
+          {item.label}
+        </span>
+      </button>
+    ))}
+
+    {/* Streak chip in nav */}
+    <div style={{
+      display: "flex",
+      flexDirection: "column",
+      alignItems: "center",
+      justifyContent: "center",
+      gap: "2px",
+      padding: "8px 12px",
+      borderLeft: "1px solid #f0e0d0",
+      minWidth: "64px",
+    }}>
+      <div style={{ display: "flex", alignItems: "center", gap: "3px" }}>
+        <span style={{
+          fontFamily: "var(--font-cormorant), serif",
+          fontSize: "20px",
+          fontWeight: 600,
+          color: "#c17a5b",
+          lineHeight: 1,
+        }}>{streak}</span>
+        <StickerImg openmoji="1F525" size={18} alt="streak" />
+      </div>
+      <span style={{
+        fontFamily: "var(--font-patrick), cursive",
+        fontSize: "10px",
+        color: "#bba89c",
+      }}>streak</span>
+    </div>
+  </nav>
+)}
 
           {/* Spacer */}
           <div style={{ flex: 1 }} />
