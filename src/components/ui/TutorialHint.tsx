@@ -1,24 +1,36 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { StickerImg } from "./StickerImg";
 
-const TUTORIAL_KEY = "cz_tutorial_v2"; // Bumped version to reset testing flag
+const TUTORIAL_KEY = "cz_tutorial_v2";
 
 export function TutorialHint() {
   const [visible, setVisible] = useState(false);
+  const mountedRef = useRef(true);
 
   useEffect(() => {
-    const seen = localStorage.getItem(TUTORIAL_KEY) === "true";
-    if (!seen) {
-      const timer = setTimeout(() => setVisible(true), 1200);
-      return () => clearTimeout(timer);
+    mountedRef.current = true;
+    return () => { mountedRef.current = false; };
+  }, []);
+
+  useEffect(() => {
+    // Check immediately — no setTimeout
+    try {
+      const seen = localStorage.getItem(TUTORIAL_KEY) === "true";
+      if (!seen && mountedRef.current) {
+        setVisible(true);
+      }
+    } catch {
+      // localStorage blocked (private browsing etc)
     }
   }, []);
 
   function dismiss() {
-    localStorage.setItem(TUTORIAL_KEY, "true");
+    try {
+      localStorage.setItem(TUTORIAL_KEY, "true");
+    } catch { /* ignore */ }
     setVisible(false);
   }
 
@@ -26,7 +38,6 @@ export function TutorialHint() {
     <AnimatePresence>
       {visible && (
         <>
-          {/* Background Backdrop Layer */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -35,12 +46,11 @@ export function TutorialHint() {
             style={{
               position: "fixed",
               inset: 0,
-              zIndex: 9998, // Placed directly beneath the active modal panel
-              background: "rgba(61,47,37,0.2)",
+              zIndex: 9998,
+              background: "rgba(61,47,37,0.25)",
+              touchAction: "none",
             }}
           />
-
-          {/* Bottom Sheet Interface Modal */}
           <motion.div
             initial={{ y: "100%" }}
             animate={{ y: 0 }}
@@ -51,40 +61,48 @@ export function TutorialHint() {
               bottom: 0,
               left: 0,
               right: 0,
-              zIndex: 9999, // Maximized layer indexing to override other views
+              zIndex: 9999,
               background: "#fffbf7",
               borderRadius: "20px 20px 0 0",
               border: "1.5px solid #e8c5a8",
-              padding: "20px 24px 40px",
-              boxShadow: "0 -8px 40px rgba(61,47,37,0.14)",
-              maxHeight: "85vh",
+              padding: "20px 24px 48px",
+              boxShadow: "0 -8px 40px rgba(61,47,37,0.16)",
+              maxHeight: "88vh",
               overflowY: "auto",
-              WebkitOverflowScrolling: "touch" as any,
             }}
           >
-            {/* Handle Drag Anchor representation */}
             <div style={{
               width: "36px", height: "4px",
               background: "#e8c5a8", borderRadius: "999px",
-              margin: "0 auto 16px",
+              margin: "0 auto 20px",
             }} />
 
             <div style={{
               fontFamily: "var(--font-cormorant), serif",
               fontSize: "26px", fontWeight: 600,
               color: "#c17a5b", marginBottom: "20px",
+              lineHeight: 1.2,
             }}>
               welcome to Cozync ✦
             </div>
 
-            <div style={{ display: "flex", flexDirection: "column", gap: "16px", marginBottom: "24px" }}>
+            <div style={{
+              display: "flex", flexDirection: "column",
+              gap: "16px", marginBottom: "28px",
+            }}>
               {[
-                { openmoji: "1F4C5", title: "tap any day", desc: "Tap a date on the calendar to open it and start logging." },
-                { openmoji: "1F338", title: "log how you feel", desc: "Pick a mood, write a note, add your wins for the day." },
-                { openmoji: "2728",  title: "decorate it",    desc: "Place a sticker on the day — it appears right on the calendar." },
-                { openmoji: "1F525", title: "build your streak", desc: "Show up daily and unlock new sticker packs as rewards." },
+                { openmoji: "1F4C5", title: "tap any day",
+                  desc: "Tap a date on the calendar to open it and start logging." },
+                { openmoji: "1F338", title: "log how you feel",
+                  desc: "Pick a mood, write a note, add your wins for the day." },
+                { openmoji: "2728",  title: "decorate it",
+                  desc: "Place a sticker — it appears right on the calendar cell." },
+                { openmoji: "1F525", title: "build your streak",
+                  desc: "Show up daily and unlock new sticker packs as rewards." },
               ].map((step, i) => (
-                <div key={i} style={{ display: "flex", alignItems: "flex-start", gap: "14px" }}>
+                <div key={i} style={{
+                  display: "flex", alignItems: "flex-start", gap: "14px",
+                }}>
                   <div style={{
                     background: "#fde8d8", borderRadius: "12px",
                     padding: "8px", flexShrink: 0,
@@ -110,17 +128,17 @@ export function TutorialHint() {
             </div>
 
             <motion.button
-              whileHover={{ scale: 1.04 }}
-              whileTap={{ scale: 0.96 }}
+              whileHover={{ scale: 1.03 }}
+              whileTap={{ scale: 0.97 }}
               onClick={dismiss}
               style={{
                 width: "100%",
                 background: "#c17a5b", color: "#fffbf7",
                 border: "none", borderRadius: "999px",
-                padding: "13px",
+                padding: "14px",
                 fontFamily: "var(--font-patrick), cursive",
                 fontSize: "15px", cursor: "pointer",
-                boxShadow: "0 2px 8px rgba(193,122,91,0.25)",
+                boxShadow: "0 2px 10px rgba(193,122,91,0.3)",
               }}
             >
               let's start my story ✦
