@@ -12,8 +12,8 @@ import { OnboardingToast } from "@/components/ui/OnboardingToast";
 import { UnlockCelebration } from "@/components/ui/UnlockCelebration";
 import { useUnlockDetector } from "@/hooks/useUnlockDetector";
 import { MonthStats } from "@/components/calendar/MonthStats";
-// Ensure this import path matches your codebase structure
 import { StickersPage } from "@/components/StickersPage";
+import { TutorialHint } from "@/components/ui/TutorialHint";
 
 export default function CalendarPage() {
   const today = new Date();
@@ -22,8 +22,6 @@ export default function CalendarPage() {
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [isMobile, setIsMobile] = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(false);
-  
-  // Dynamic navigation state tracking
   const [activeNav, setActiveNav] = useState("Calendar");
 
   const NAV_ITEMS = [
@@ -60,6 +58,7 @@ export default function CalendarPage() {
     if (month === 1) { setYear(y => y - 1); setMonth(12); }
     else setMonth(m => m - 1);
   }
+  
   function handleNext() {
     if (month === 12) { setYear(y => y + 1); setMonth(1); }
     else setMonth(m => m + 1);
@@ -74,7 +73,6 @@ export default function CalendarPage() {
     const yesterdayStr = yesterday.toISOString().split("T")[0];
     const dateSet = new Set(allEntries.map(e => e.date));
 
-    // Start from today if logged, otherwise from yesterday
     let cursor = dateSet.has(todayStr) ? todayStr : yesterdayStr;
     while (dateSet.has(cursor)) {
       streak++;
@@ -93,7 +91,6 @@ export default function CalendarPage() {
       overflow: "hidden",     
       background: "#fdf8f3",
       fontFamily: "var(--font-nunito), sans-serif",
-      overflowX: "auto",
     }}>
 
       {/* ── Sidebar (desktop only) ── */}
@@ -135,76 +132,21 @@ export default function CalendarPage() {
             }}>✦</span>
           </div>
 
-          {/* Desktop Nav */}
-          {isMobile && (
-  <nav style={{
-    display: "flex",
-    flexDirection: "row",
-    borderTop: "1.5px solid #f0e0d0",
-    background: "#fffbf7",
-    paddingBottom: "env(safe-area-inset-bottom)",
-  }}>
-    {NAV_ITEMS.map(item => (
-      <button
-        key={item.label}
-        onClick={() => setActiveNav(item.label)}
-        style={{
-          flex: 1,
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          gap: "3px",
-          padding: "10px 4px 8px",
-          background: "none",
-          border: "none",
-          cursor: "pointer",
-        }}
-      >
-        <StickerImg openmoji={item.openmoji} size={22} alt={item.label} />
-        <span style={{
-          fontFamily: "var(--font-patrick), cursive",
-          fontSize: "11px",
-          color: activeNav === item.label ? "#c17a5b" : "#9a7b6b",
-        }}>
-          {item.label}
-        </span>
-      </button>
-    ))}
+          {/* Desktop Links Container */}
+          <div style={{ padding: "0 12px", display: "flex", flexDirection: "column", gap: "4px" }}>
+            {NAV_ITEMS.map(item => (
+              <NavItem
+                key={item.label}
+                item={item}
+                isActive={activeNav === item.label}
+                onClick={() => setActiveNav(item.label)}
+              />
+            ))}
+          </div>
 
-    {/* Streak chip in nav */}
-    <div style={{
-      display: "flex",
-      flexDirection: "column",
-      alignItems: "center",
-      justifyContent: "center",
-      gap: "2px",
-      padding: "8px 12px",
-      borderLeft: "1px solid #f0e0d0",
-      minWidth: "64px",
-    }}>
-      <div style={{ display: "flex", alignItems: "center", gap: "3px" }}>
-        <span style={{
-          fontFamily: "var(--font-cormorant), serif",
-          fontSize: "20px",
-          fontWeight: 600,
-          color: "#c17a5b",
-          lineHeight: 1,
-        }}>{streak}</span>
-        <StickerImg openmoji="1F525" size={18} alt="streak" />
-      </div>
-      <span style={{
-        fontFamily: "var(--font-patrick), cursive",
-        fontSize: "10px",
-        color: "#bba89c",
-      }}>streak</span>
-    </div>
-  </nav>
-)}
-
-          {/* Spacer */}
           <div style={{ flex: 1 }} />
 
-          {/* Streak — always pinned to bottom */}
+          {/* Streak — pinned to bottom */}
           <div style={{
             padding: "16px 16px 28px",
             textAlign: "center",
@@ -241,6 +183,7 @@ export default function CalendarPage() {
                 lineHeight: 1,
               }}>{streak}</span>
               <StickerImg openmoji="1F525" size={30} alt="fire" />
+            <TutorialHint />
             </div>
           </div>
         </aside>
@@ -257,7 +200,61 @@ export default function CalendarPage() {
         marginLeft: isMobile ? "0px" : "200px",
       }}>
 
-        {/* Dynamic Inner Panel View Row */}
+        {/* Mobile header */}
+        {isMobile && (
+          <div style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            padding: "16px 20px 12px",
+            background: "#fffbf7",
+            borderBottom: "1.5px solid #f0e0d0",
+            flexShrink: 0,
+          }}>
+            <div style={{
+              fontFamily: "var(--font-cormorant), serif",
+              fontSize: "28px",
+              fontWeight: 600,
+              color: "#c17a5b",
+              lineHeight: 1,
+              display: "flex",
+              alignItems: "center",
+              gap: "6px",
+            }}>
+              Cozync
+              <span style={{
+                fontFamily: "var(--font-gochi), cursive",
+                fontSize: "16px",
+              }}>✦</span>
+            </div>
+            {/* Streak chip */}
+            <div style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "6px",
+              background: "#fde8d8",
+              borderRadius: "999px",
+              padding: "6px 14px",
+              border: "1.5px solid #f0e0d0",
+            }}>
+              <span style={{
+                fontFamily: "var(--font-cormorant), serif",
+                fontSize: "20px",
+                fontWeight: 600,
+                color: "#c17a5b",
+                lineHeight: 1,
+              }}>{streak}</span>
+              <StickerImg openmoji="1F525" size={20} alt="streak" />
+              <span style={{
+                fontFamily: "var(--font-patrick), cursive",
+                fontSize: "12px",
+                color: "#a0563a",
+              }}>streak</span>
+            </div>
+          </div>
+        )}
+
+        {/* Inner Panel Row */}
         <div style={{
           flex: 1,
           display: "flex",
@@ -265,7 +262,7 @@ export default function CalendarPage() {
           overflow: "hidden",
         }}>
 
-          {/* Core App Stage View Container */}
+          {/* Core Stage Container */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -384,7 +381,6 @@ export default function CalendarPage() {
                 boxShadow: "0 -4px 32px rgba(61,47,37,0.12)",
               }}
             >
-              {/* Drag handle */}
               <div style={{
                 width: "36px",
                 height: "4px",
@@ -400,13 +396,15 @@ export default function CalendarPage() {
           )}
         </AnimatePresence>
 
-        {/* Mobile bottom nav */}
+        {/* Replaced with your clean mobile nav setup */}
         {isMobile && (
           <nav style={{
             display: "flex",
             flexDirection: "row",
             borderTop: "1.5px solid #f0e0d0",
             background: "#fffbf7",
+            paddingBottom: "env(safe-area-inset-bottom)",
+            flexShrink: 0,
           }}>
             {NAV_ITEMS.map(item => (
               <button
@@ -418,7 +416,7 @@ export default function CalendarPage() {
                   flexDirection: "column",
                   alignItems: "center",
                   gap: "3px",
-                  padding: "10px 4px",
+                  padding: "10px 4px 8px",
                   background: "none",
                   border: "none",
                   cursor: "pointer",
@@ -438,7 +436,7 @@ export default function CalendarPage() {
         )}
       </div>
 
-      {/* Onboarding Alert Toast */}
+      {/* Toast Alert / Global Elements */}
       <OnboardingToast  
         visible={showOnboarding}  
         onDismiss={() => {    
