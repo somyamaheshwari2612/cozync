@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import React from "react";
 import {
@@ -63,6 +64,7 @@ export default function RootLayout({
       className={`${gochiHand.variable} ${patrickHand.variable} ${nunito.variable} ${notoEmoji.variable} ${cormorant.variable}`}
     >
       <body>{children}</body>
+      <Analytics />
       <SpeedInsights />
     </html>
   );
