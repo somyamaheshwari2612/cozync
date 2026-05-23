@@ -1,37 +1,34 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { StickerImg } from "./StickerImg";
 
 const TUTORIAL_KEY = "cz_tutorial_v2";
 
-export function TutorialHint() {
+interface TutorialHintProps {
+  forceOpen?: boolean;
+  onClose?: () => void;
+}
+
+export function TutorialHint({ forceOpen = false, onClose }: TutorialHintProps) {
   const [visible, setVisible] = useState(false);
-  const mountedRef = useRef(true);
 
   useEffect(() => {
-    mountedRef.current = true;
-    return () => { mountedRef.current = false; };
-  }, []);
-
-  useEffect(() => {
-    // Check immediately — no setTimeout
+    if (forceOpen) {
+      setVisible(true);
+      return;
+    }
     try {
       const seen = localStorage.getItem(TUTORIAL_KEY) === "true";
-      if (!seen && mountedRef.current) {
-        setVisible(true);
-      }
-    } catch {
-      // localStorage blocked (private browsing etc)
-    }
-  }, []);
+      if (!seen) setVisible(true);
+    } catch { /* private browsing */ }
+  }, [forceOpen]);
 
   function dismiss() {
-    try {
-      localStorage.setItem(TUTORIAL_KEY, "true");
-    } catch { /* ignore */ }
+    try { localStorage.setItem(TUTORIAL_KEY, "true"); } catch { /* ignore */ }
     setVisible(false);
+    onClose?.();
   }
 
   return (
@@ -44,8 +41,7 @@ export function TutorialHint() {
             exit={{ opacity: 0 }}
             onClick={dismiss}
             style={{
-              position: "fixed",
-              inset: 0,
+              position: "fixed", inset: 0,
               zIndex: 9998,
               background: "rgba(61,47,37,0.25)",
               touchAction: "none",
@@ -58,9 +54,7 @@ export function TutorialHint() {
             transition={{ duration: 0.35, ease: [0.25, 0.1, 0.25, 1] }}
             style={{
               position: "fixed",
-              bottom: 0,
-              left: 0,
-              right: 0,
+              bottom: 0, left: 0, right: 0,
               zIndex: 9999,
               background: "#fffbf7",
               borderRadius: "20px 20px 0 0",
@@ -71,6 +65,7 @@ export function TutorialHint() {
               overflowY: "auto",
             }}
           >
+            {/* Handle */}
             <div style={{
               width: "36px", height: "4px",
               background: "#e8c5a8", borderRadius: "999px",
@@ -81,9 +76,8 @@ export function TutorialHint() {
               fontFamily: "var(--font-cormorant), serif",
               fontSize: "26px", fontWeight: 600,
               color: "#c17a5b", marginBottom: "20px",
-              lineHeight: 1.2,
             }}>
-              welcome to Cozync ✦
+              how Cozync works ✦
             </div>
 
             <div style={{
@@ -99,6 +93,8 @@ export function TutorialHint() {
                   desc: "Place a sticker — it appears right on the calendar cell." },
                 { openmoji: "1F525", title: "build your streak",
                   desc: "Show up daily and unlock new sticker packs as rewards." },
+                { openmoji: "1F4BE", title: "your data is yours",
+                  desc: "Everything saves locally on your device. No account needed. Ever." },
               ].map((step, i) => (
                 <div key={i} style={{
                   display: "flex", alignItems: "flex-start", gap: "14px",
@@ -141,7 +137,7 @@ export function TutorialHint() {
                 boxShadow: "0 2px 10px rgba(193,122,91,0.3)",
               }}
             >
-              let's start my story ✦
+              got it, let's go ✦
             </motion.button>
           </motion.div>
         </>

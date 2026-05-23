@@ -14,6 +14,8 @@ import { useUnlockDetector } from "@/hooks/useUnlockDetector";
 import { MonthStats } from "@/components/calendar/MonthStats";
 import { StickersPage } from "@/components/StickersPage";
 import { TutorialHint } from "@/components/ui/TutorialHint";
+import { AboutModal } from "@/components/ui/AboutModal";
+import { Footer } from "@/components/ui/Footer";
 
 export default function CalendarPage() {
   const today = new Date();
@@ -23,6 +25,10 @@ export default function CalendarPage() {
   const [isMobile, setIsMobile] = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [activeNav, setActiveNav] = useState("Calendar");
+  const [showAbout, setShowAbout] = useState(false);
+  
+  // Track forced interactive overlay triggers
+  const [showTutorial, setShowTutorial] = useState(false);
 
   const NAV_ITEMS = [
     { openmoji: "1F4C5", label: "Calendar" },
@@ -44,6 +50,13 @@ export default function CalendarPage() {
       setTimeout(() => setShowOnboarding(true), 1000);
     }
   }, [allEntries.length]);
+
+  useEffect(() => {
+    const seenTutorial = localStorage.getItem("cz_tutorial_v2") === "true";
+    if (!seenTutorial) {
+      setShowTutorial(true);
+    }
+  }, []);
 
   useEffect(() => { loadUser(); }, [loadUser]);
   
@@ -103,27 +116,32 @@ export default function CalendarPage() {
           display: "flex",
           flexDirection: "column",
           height: "100vh",
-          overflow: "visible", // Allowed popovers to show past desktop bounds smoothly
+          overflow: "visible", 
           flexShrink: 0,
           position: "fixed",
           top: 0,
           left: 0,
           zIndex: 50,
         }}>
-          {/* Fixed Baseline Sidebar Logo */}
-          <div style={{
-            padding: "28px 16px 20px",
-            fontFamily: "var(--font-cormorant), serif",
-            fontSize: "34px",
-            fontWeight: 600,
-            color: "#c17a5b",
-            letterSpacing: "0.3px",
-            lineHeight: 1,
-            display: "flex",
-            alignItems: "center",
-            gap: "4px",
-            flexShrink: 0,
-          }}>
+          {/* Clickable Sidebar Logo */}
+          <div 
+            onClick={() => setShowAbout(true)}
+            style={{
+              padding: "28px 16px 20px",
+              fontFamily: "var(--font-cormorant), serif",
+              fontSize: "34px",
+              fontWeight: 600,
+              color: "#c17a5b",
+              letterSpacing: "0.3px",
+              lineHeight: 1,
+              display: "flex",
+              alignItems: "center",
+              gap: "4px",
+              flexShrink: 0,
+              cursor: "pointer",
+              userSelect: "none",
+            }}
+          >
             Cozync
             <span style={{
               fontFamily: "var(--font-cormorant), serif",
@@ -186,9 +204,6 @@ export default function CalendarPage() {
               }}>{streak}</span>
               <StickerImg openmoji="1F525" size={30} alt="fire" />
             </div>
-            <div style={{ marginTop: "10px", display: "flex", justifyContent: "center" }}>
-              <TutorialHint />
-            </div>
           </div>
         </aside>
       )}
@@ -215,17 +230,22 @@ export default function CalendarPage() {
             borderBottom: "1.5px solid #f0e0d0",
             flexShrink: 0,
           }}>
-            {/* Fixed Baseline Mobile Header Logo */}
-            <div style={{
-              fontFamily: "var(--font-cormorant), serif",
-              fontSize: "28px",
-              fontWeight: 600,
-              color: "#c17a5b",
-              lineHeight: 1,
-              display: "flex",
-              alignItems: "center",
-              gap: "4px",
-            }}>
+            {/* Clickable Mobile Header Logo */}
+            <div 
+              onClick={() => setShowAbout(true)}
+              style={{
+                fontFamily: "var(--font-cormorant), serif",
+                fontSize: "28px",
+                fontWeight: 600,
+                color: "#c17a5b",
+                lineHeight: 1,
+                display: "flex",
+                alignItems: "center",
+                gap: "4px",
+                cursor: "pointer",
+                userSelect: "none",
+              }}
+            >
               Cozync
               <span style={{
                 fontFamily: "var(--font-cormorant), serif",
@@ -236,7 +256,7 @@ export default function CalendarPage() {
               }}>✦</span>
             </div>
             
-            {/* Updated Mobile Header Streak Chip */}
+            {/* Clamped Mobile Header Streak Chip */}
             <div style={{
               display: "flex",
               alignItems: "center",
@@ -406,6 +426,12 @@ export default function CalendarPage() {
           )}
         </AnimatePresence>
 
+        {/* Desktop Layout Footer */}
+        {!isMobile && <Footer />}
+
+        {/* Mobile Layout Footer Container */}
+        {isMobile && <Footer />}
+
         {/* Mobile bottom nav setup */}
         {isMobile && (
           <nav style={{
@@ -446,7 +472,53 @@ export default function CalendarPage() {
         )}
       </div>
 
-      {/* Toast Alert / Global Elements */}
+      {/* Floating help reset button */}
+      <motion.button
+        whileHover={{ scale: 1.1 }}
+        whileTap={{ scale: 0.92 }}
+        onClick={() => {
+          localStorage.removeItem("cz_tutorial_v2");
+          setShowTutorial(true);
+        }}
+        style={{
+          position: "fixed",
+          bottom: isMobile ? "80px" : "28px",
+          right: "20px",
+          zIndex: 150,
+          width: "40px",
+          height: "40px",
+          borderRadius: "50%",
+          background: "#fffbf7",
+          border: "1.5px solid #e8c5a8",
+          boxShadow: "0 2px 12px rgba(61,47,37,0.12)",
+          cursor: "pointer",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          fontFamily: "var(--font-patrick), cursive",
+          fontSize: "16px",
+          color: "#9a7b6b",
+        }}
+      >
+        ?
+      </motion.button>
+
+      {/* Wired Tutorial Dialog using unified dynamic visibility handlers */}
+      <AnimatePresence>
+        {showTutorial && (
+          <TutorialHint 
+            forceOpen={showTutorial} 
+            onClose={() => setShowTutorial(false)} 
+          />
+        )}
+      </AnimatePresence>
+
+      {/* Wired Interactive About Overlay Context */}
+      <AboutModal
+        visible={showAbout}
+        onClose={() => setShowAbout(false)}
+      />
+
       <OnboardingToast  
         visible={showOnboarding}  
         onDismiss={() => {    
@@ -508,7 +580,6 @@ function NavItem({
   );
 }
 
-// Complete cross-platform fix for the streak explanation dimensional popover
 function StreakInfoButton({ isMobile = false }: { isMobile?: boolean }) {
   const [open, setOpen] = useState(false);
 
@@ -540,7 +611,6 @@ function StreakInfoButton({ isMobile = false }: { isMobile?: boolean }) {
       <AnimatePresence>
         {open && (
           <>
-            {/* Global background overlay backdrop click handler */}
             <div
               onClick={() => setOpen(false)}
               style={{
@@ -559,7 +629,6 @@ function StreakInfoButton({ isMobile = false }: { isMobile?: boolean }) {
               style={
                 isMobile
                   ? {
-                      /* Snapped layout for mobile devices */
                       position: "fixed",
                       bottom: "20px",
                       left: "50%",
@@ -574,7 +643,6 @@ function StreakInfoButton({ isMobile = false }: { isMobile?: boolean }) {
                       textAlign: "left",
                     }
                   : {
-                      /* Relative position for desktop sidebar */
                       position: "absolute",
                       bottom: "28px",
                       left: "50%",
