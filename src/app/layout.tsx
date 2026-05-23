@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import React from "react";
 import {
   Gochi_Hand,
@@ -62,6 +63,7 @@ export default function RootLayout({
       className={`${gochiHand.variable} ${patrickHand.variable} ${nunito.variable} ${notoEmoji.variable} ${cormorant.variable}`}
     >
       <body>{children}</body>
+      <SpeedInsights />
     </html>
   );
 }
