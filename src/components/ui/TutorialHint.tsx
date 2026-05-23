@@ -4,16 +4,21 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { StickerImg } from "./StickerImg";
 
+const TUTORIAL_KEY = "cz_tutorial_v2"; // Bumped version to reset testing flag
+
 export function TutorialHint() {
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
-    const seen = localStorage.getItem("cz_tutorial") === "true";
-    if (!seen) setTimeout(() => setVisible(true), 1200);
+    const seen = localStorage.getItem(TUTORIAL_KEY) === "true";
+    if (!seen) {
+      const timer = setTimeout(() => setVisible(true), 1200);
+      return () => clearTimeout(timer);
+    }
   }, []);
 
   function dismiss() {
-    localStorage.setItem("cz_tutorial", "true");
+    localStorage.setItem(TUTORIAL_KEY, "true");
     setVisible(false);
   }
 
@@ -21,6 +26,7 @@ export function TutorialHint() {
     <AnimatePresence>
       {visible && (
         <>
+          {/* Background Backdrop Layer */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -29,10 +35,12 @@ export function TutorialHint() {
             style={{
               position: "fixed",
               inset: 0,
-              zIndex: 190,
+              zIndex: 9998, // Placed directly beneath the active modal panel
               background: "rgba(61,47,37,0.2)",
             }}
           />
+
+          {/* Bottom Sheet Interface Modal */}
           <motion.div
             initial={{ y: "100%" }}
             animate={{ y: 0 }}
@@ -43,7 +51,7 @@ export function TutorialHint() {
               bottom: 0,
               left: 0,
               right: 0,
-              zIndex: 200,
+              zIndex: 9999, // Maximized layer indexing to override other views
               background: "#fffbf7",
               borderRadius: "20px 20px 0 0",
               border: "1.5px solid #e8c5a8",
@@ -54,7 +62,7 @@ export function TutorialHint() {
               WebkitOverflowScrolling: "touch" as any,
             }}
           >
-            {/* Handle */}
+            {/* Handle Drag Anchor representation */}
             <div style={{
               width: "36px", height: "4px",
               background: "#e8c5a8", borderRadius: "999px",
@@ -66,7 +74,7 @@ export function TutorialHint() {
               fontSize: "26px", fontWeight: 600,
               color: "#c17a5b", marginBottom: "20px",
             }}>
-              welcome to Cozync ✦
+              welcome to Cozync Cozync
             </div>
 
             <div style={{ display: "flex", flexDirection: "column", gap: "16px", marginBottom: "24px" }}>

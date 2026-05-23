@@ -236,7 +236,7 @@ export default function CalendarPage() {
               }}>✦</span>
             </div>
             
-            {/* Updated Mobile Header Streak Chip */}
+            {/* Clamped Mobile Header Streak Chip */}
             <div style={{
               display: "flex",
               alignItems: "center",
@@ -516,9 +516,22 @@ function StreakInfoButton() {
   function handleOpen() {
     if (btnRef.current) {
       const rect = btnRef.current.getBoundingClientRect();
+      const tooltipWidth = 240;
+      
+      // Calculate normal midpoint horizontal center alignment
+      let left = rect.left + rect.width / 2;
+      
+      // Clamp left boundary edge alignment to safely manage viewports
+      if (left + tooltipWidth / 2 > window.innerWidth - 16) {
+        left = window.innerWidth - tooltipWidth / 2 - 16;
+      }
+      if (left - tooltipWidth / 2 < 16) {
+        left = tooltipWidth / 2 + 16;
+      }
+      
       setPos({
         bottom: window.innerHeight - rect.top + 8,
-        left: rect.left + rect.width / 2,
+        left,
       });
     }
     setOpen(o => !o);
@@ -568,12 +581,13 @@ function StreakInfoButton() {
                 left: pos.left,
                 transform: "translateX(-50%)",
                 width: "240px",
+                maxWidth: "calc(100vw - 32px)", // Safe fallback viewport buffer
                 background: "#fffbf7",
                 border: "1.5px solid #e8c5a8",
                 borderRadius: "16px",
                 padding: "16px",
                 boxShadow: "0 8px 32px rgba(61,47,37,0.14)",
-                zIndex: 99,
+                zIndex: 9999, // Raised to fully clear layout containers
                 textAlign: "left",
               }}
             >
