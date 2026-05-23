@@ -110,7 +110,7 @@ export default function CalendarPage() {
           left: 0,
           zIndex: 50,
         }}>
-          {/* Logo */}
+          {/* Fixed Baseline Sidebar Logo */}
           <div style={{
             padding: "28px 16px 20px",
             fontFamily: "var(--font-cormorant), serif",
@@ -121,14 +121,16 @@ export default function CalendarPage() {
             lineHeight: 1,
             display: "flex",
             alignItems: "center",
-            gap: "6px",
+            gap: "4px",
             flexShrink: 0,
           }}>
             Cozync
             <span style={{
-              fontFamily: "var(--font-gochi), cursive",
-              fontSize: "20px",
+              fontFamily: "var(--font-cormorant), serif",
+              fontSize: "28px",
               color: "#c17a5b",
+              lineHeight: 1,
+              verticalAlign: "middle",
             }}>✦</span>
           </div>
 
@@ -183,7 +185,9 @@ export default function CalendarPage() {
                 lineHeight: 1,
               }}>{streak}</span>
               <StickerImg openmoji="1F525" size={30} alt="fire" />
-            <TutorialHint />
+            </div>
+            <div style={{ marginTop: "10px", display: "flex", justifyContent: "center" }}>
+              <TutorialHint />
             </div>
           </div>
         </aside>
@@ -211,6 +215,7 @@ export default function CalendarPage() {
             borderBottom: "1.5px solid #f0e0d0",
             flexShrink: 0,
           }}>
+            {/* Fixed Baseline Mobile Header Logo */}
             <div style={{
               fontFamily: "var(--font-cormorant), serif",
               fontSize: "28px",
@@ -219,15 +224,19 @@ export default function CalendarPage() {
               lineHeight: 1,
               display: "flex",
               alignItems: "center",
-              gap: "6px",
+              gap: "4px",
             }}>
               Cozync
               <span style={{
-                fontFamily: "var(--font-gochi), cursive",
-                fontSize: "16px",
+                fontFamily: "var(--font-cormorant), serif",
+                fontSize: "22px",
+                color: "#c17a5b",
+                lineHeight: 1,
+                verticalAlign: "middle",
               }}>✦</span>
             </div>
-            {/* Streak chip */}
+            
+            {/* Updated Mobile Header Streak Chip */}
             <div style={{
               display: "flex",
               alignItems: "center",
@@ -238,6 +247,11 @@ export default function CalendarPage() {
               border: "1.5px solid #f0e0d0",
             }}>
               <span style={{
+                fontFamily: "var(--font-patrick), cursive",
+                fontSize: "12px",
+                color: "#a0563a",
+              }}>current streak</span>
+              <span style={{
                 fontFamily: "var(--font-cormorant), serif",
                 fontSize: "20px",
                 fontWeight: 600,
@@ -245,11 +259,7 @@ export default function CalendarPage() {
                 lineHeight: 1,
               }}>{streak}</span>
               <StickerImg openmoji="1F525" size={20} alt="streak" />
-              <span style={{
-                fontFamily: "var(--font-patrick), cursive",
-                fontSize: "12px",
-                color: "#a0563a",
-              }}>streak</span>
+              <StreakInfoButton />
             </div>
           </div>
         )}
@@ -396,7 +406,7 @@ export default function CalendarPage() {
           )}
         </AnimatePresence>
 
-        {/* Replaced with your clean mobile nav setup */}
+        {/* Mobile bottom nav setup */}
         {isMobile && (
           <nav style={{
             display: "flex",

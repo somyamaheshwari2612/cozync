@@ -71,11 +71,12 @@ export function MonthStats({ entries, year, month }: MonthStatsProps) {
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, delay: 0.1 }}
       style={{
-        display: "grid",
-        gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
-        gap: "12px",
+        display: "flex",
+        gap: "8px",
+        flexWrap: "wrap",
+        alignItems: "stretch",
         marginTop: "16px",
-        padding: "16px",
+        padding: "14px 16px",
         background: "#fffbf7",
         border: "1.5px solid #f0e0d0",
         borderRadius: "16px",
@@ -111,7 +112,7 @@ export function MonthStats({ entries, year, month }: MonthStatsProps) {
         />
       )}
 
-      {/* Affirmation */}
+      {/* Affirmation Block */}
       <div style={{
         display: "flex",
         alignItems: "center",
@@ -120,7 +121,9 @@ export function MonthStats({ entries, year, month }: MonthStatsProps) {
         background: "#fdf0e8",
         borderRadius: "12px",
         border: "1.5px solid #f0e0d0",
-        minHeight: "64px",
+        minWidth: "160px",
+        flex: "1 1 160px",
+        boxSizing: "border-box",
       }}>
         <span style={{
           fontFamily: "var(--font-patrick), cursive",
@@ -136,7 +139,6 @@ export function MonthStats({ entries, year, month }: MonthStatsProps) {
   );
 }
 
-// Fixed the "ffunction" typo here
 function StatChip({ openmoji, label, value, sub, valueColor = "#3d2f25", valueBg }: {
   openmoji: string;
   label: string;
@@ -149,12 +151,14 @@ function StatChip({ openmoji, label, value, sub, valueColor = "#3d2f25", valueBg
     <div style={{
       display: "flex",
       alignItems: "center",
-      gap: "12px",
-      padding: "10px 14px",
+      gap: "10px",
+      padding: "8px 14px 8px 10px",
       background: "#fdf8f3",
       borderRadius: "12px",
       border: "1.5px solid #f0e0d0",
-      width: "100%",
+      minWidth: "160px",
+      flex: "1 1 160px",
+      boxSizing: "border-box",
     }}>
       <StickerImg openmoji={openmoji} size={24} alt={label} />
       <div>
@@ -222,6 +226,7 @@ function getWinsContext(count: number): string {
   return "every one counts ✦";
 }
 
+// Fixed standard XML-Safe evaluation entities here
 function getMonthAffirmation(percent: number): string {
   if (percent >= 80) return "you're showing up beautifully ✦";
   if (percent >= 50) return "more than halfway there 🌿";
