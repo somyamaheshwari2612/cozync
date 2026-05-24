@@ -80,10 +80,10 @@ export default function CalendarPage() {
   // Streak calculation
   let streak = 0;
   {
-    const todayStr = today.toISOString().split("T")[0];
+   const todayStr = today.toLocaleDateString("en-CA");
     const yesterday = new Date(today);
     yesterday.setDate(yesterday.getDate() - 1);
-    const yesterdayStr = yesterday.toISOString().split("T")[0];
+    const yesterdayStr = yesterday.toLocaleDateString("en-CA");
     const dateSet = new Set(allEntries.map(e => e.date));
 
     let cursor = dateSet.has(todayStr) ? todayStr : yesterdayStr;
@@ -91,7 +91,7 @@ export default function CalendarPage() {
       streak++;
       const d = new Date(cursor);
       d.setDate(d.getDate() - 1);
-      cursor = d.toISOString().split("T")[0];
+      cursor = d.toLocaleDateString("en-CA");
     }
   }
 

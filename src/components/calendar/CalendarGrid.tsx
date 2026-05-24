@@ -34,7 +34,7 @@ export function CalendarGrid({
   selectedDate,
   onSelectDate,
 }: CalendarGridProps) {
-  const today = new Date().toISOString().split("T")[0];
+ const today = new Date().toLocaleDateString("en-CA"); // "en-CA" gives YYYY-MM-DD in local time
 
   const { days, leadingBlanks } = useMemo(() => {
     const total = getDaysInMonth(year, month);
