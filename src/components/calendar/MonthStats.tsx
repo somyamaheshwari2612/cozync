@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import { type Entry } from "@/db/cozync.db";
 import { MOOD_MAP } from "@/constants/moods";
 import { StickerImg } from "@/components/ui/StickerImg";
+import { getTodayLocal } from "@/lib/dateUtils";
 
 interface MonthStatsProps {
   entries: Entry[];
@@ -16,7 +17,7 @@ export function MonthStats({ entries, year, month }: MonthStatsProps) {
   const stats = useMemo(() => {
     // Correctly find total days in the given month
     const daysInMonth = new Date(year, month, 0).getDate();
-    const today = new Date().toISOString().split("T")[0];
+    const today = getTodayLocal();
     const monthStr = `${year}-${String(month).padStart(2, "0")}`;
 
     // Only count days that actually belong to this month

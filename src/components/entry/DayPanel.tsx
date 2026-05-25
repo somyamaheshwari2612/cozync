@@ -7,6 +7,7 @@ import { StickerTray } from "./StickerTray";
 import { useEntryStore } from "@/store/useEntryStore";
 import { useUserStore } from "@/store/useUserStore";
 import { type MoodId } from "@/db/cozync.db";
+import { getTodayLocal } from "@/lib/dateUtils";
 
 interface ChipType {
   label: string;
@@ -78,7 +79,7 @@ function formatDisplayDate(dateStr: string): string {
 }
 
 function getAffirmation(date: string): string {
-  const today = new Date().toLocaleDateString("en-CA");
+  const today = getTodayLocal();
   const past = [
     "you showed up that day ✦",
     "this day is part of your story 🌸",
@@ -124,28 +125,28 @@ export function DayPanel({ date, onClose }: DayPanelProps) {
     const e = getEntry(date);
     setMood(e?.mood);
     setNote(e?.note ?? "");
-    setWins(e?.wins ?? ["", "", ""]);
+    setWins(e?.wins?.length ? (e.wins.length < 3 ? [...e.wins, ...Array(3 - e.wins.length).fill("")] : e.wins) : ["", "", ""]);
     setSelectedSticker(e?.stickers?.[0]?.stickerId ?? "");
     setSavedOnce(!!e);
   }, [date, getEntry]);
 
   const handleSave = useCallback(async () => {
-  setIsSaving(true);
-  const stickers = selectedSticker
-    ? [{ packId: "default", stickerId: selectedSticker }]
-    : [];
-  const cleanWins = wins.filter((w) => w.trim().length > 0);
+    setIsSaving(true);
+    const stickers = selectedSticker
+      ? [{ packId: "default", stickerId: selectedSticker }]
+      : [];
+    const cleanWins = wins.filter((w) => w.trim().length > 0);
 
-  await saveEntry(date, {
-    mood,
-    note: note.trim(),
-    stickers,
-    wins: cleanWins,
-  });
+    await saveEntry(date, {
+      mood,
+      note: note.trim(),
+      stickers,
+      wins: cleanWins,
+    });
 
-  setIsSaving(false);
-  setSavedOnce(true);
-}, [date, mood, note, wins, selectedSticker, saveEntry]);
+    setIsSaving(false);
+    setSavedOnce(true);
+  }, [date, mood, note, wins, selectedSticker, saveEntry]);
 
   // Derived tracking point to break array reference lifecycle loop
   const winsString = JSON.stringify(wins);
@@ -159,7 +160,7 @@ export function DayPanel({ date, onClose }: DayPanelProps) {
     return () => clearTimeout(timer);
   }, [mood, note, selectedSticker, winsString, handleSave]);
 
-  const today = new Date().toISOString().split("T")[0];
+  const today = getTodayLocal();
   const isFuture = date > today;
 
   return (
@@ -221,7 +222,7 @@ export function DayPanel({ date, onClose }: DayPanelProps) {
               fontFamily: "var(--font-patrick), cursive",
               fontSize: "14px",
               color: "#bba89c",
-              lineHeight: 1.6,
+              lineHeight: "1.6", // Fixed property syntax crash here
             }}
           >
             this page hasn't been written yet —<br />
@@ -299,10 +300,8 @@ export function DayPanel({ date, onClose }: DayPanelProps) {
                       const exists = prev.includes(chip.label);
                       if (exists) {
                         const filtered = prev.filter((w) => w !== chip.label);
-                        // Maintain the base layout array structure if it gets empty
                         return filtered.length === 0 ? ["", "", ""] : filtered;
                       } else {
-                        // Strip empty structural fields before appending explicit text values
                         const activeChips = prev.filter((w) => w.trim().length > 0);
                         return [...activeChips, chip.label];
                       }
@@ -359,7 +358,7 @@ export function DayPanel({ date, onClose }: DayPanelProps) {
           {/* Mood */}
           <MoodPicker selected={mood} onChange={setMood} />
 
-          {/* Note */}
+          {/* Note updated to use contextual getTodayLocal constants */}
           <div>
             <p className="font-journal text-sm text-muted mb-2">
               a note to yourself
@@ -368,11 +367,9 @@ export function DayPanel({ date, onClose }: DayPanelProps) {
               value={note}
               onChange={(e) => setNote(e.target.value)}
               placeholder={
-                date === new Date().toISOString().split("T")[0]
+                date === today
                   ? "what happened today? how did it feel?"
-                  : date < new Date().toISOString().split("T")[0]
-                  ? "what do you remember about this day?"
-                  : "this page hasn't been written yet..."
+                  : "what do you remember about this day?"
               }
               maxLength={500}
               rows={4}
@@ -432,9 +429,7 @@ export function DayPanel({ date, onClose }: DayPanelProps) {
                         ? "something you did well..."
                         : i === 1
                         ? "a small victory..."
-                        : i === 2
-                        ? "even tiny things count..."
-                        : "one more win..."
+                        : "even tiny things count..."
                     }
                     maxLength={100}
                     style={{
@@ -452,11 +447,12 @@ export function DayPanel({ date, onClose }: DayPanelProps) {
                     onFocus={(e) => (e.target.style.borderColor = "#c17a5b")}
                     onBlur={(e) => (e.target.style.borderColor = "#e8c5a8")}
                   />
-                  {wins.length > 1 && (
+                  {wins.length > i && (
                     <button
-                      onClick={() =>
-                        setWins(wins.filter((_, idx) => idx !== i))
-                      }
+                      onClick={() => {
+                        const filtered = wins.filter((_, idx) => idx !== i);
+                        setWins(filtered.length === 0 ? ["", "", ""] : filtered);
+                      }}
                       style={{
                         color: "#bba89c",
                         fontSize: "16px",
@@ -506,7 +502,7 @@ export function DayPanel({ date, onClose }: DayPanelProps) {
             onSelect={setSelectedSticker}
           />
 
-          {/* Save indicator */}
+          {/* Save indicator footer controls wrapper */}
           <div
             style={{
               display: "flex",
@@ -553,31 +549,30 @@ export function DayPanel({ date, onClose }: DayPanelProps) {
             </AnimatePresence>
 
             <motion.button
-            onClick={async () => {
-              await handleSave();
-              // On mobile, close the panel after saving so user can see the calendar
-              if (window.innerWidth < 1024 && onClose) {
-                setTimeout(onClose, 800);
-              }
-            }}
-            whileHover={{ scale: 1.04 }}
-            whileTap={{ scale: 0.96 }}
-            style={{
-              background: "#c17a5b",
-              color: "#fffbf7",
-              border: "none",
-              borderRadius: "999px",
-              padding: "10px 22px",
-              fontFamily: "var(--font-patrick), cursive",
-              fontSize: "14px",
-              cursor: "pointer",
-              whiteSpace: "nowrap",
-              flexShrink: 0,
-              boxShadow: "0 2px 8px rgba(193,122,91,0.25)",
-            }}
-          >
-            save entry ✦
-          </motion.button>
+              onClick={async () => {
+                await handleSave();
+                if (window.innerWidth < 1024 && onClose) {
+                  setTimeout(onClose, 800);
+                }
+              }}
+              whileHover={{ scale: 1.04 }}
+              whileTap={{ scale: 0.96 }}
+              style={{
+                background: "#c17a5b",
+                color: "#fffbf7",
+                border: "none",
+                borderRadius: "999px",
+                padding: "10px 22px",
+                fontFamily: "var(--font-patrick), cursive",
+                fontSize: "14px",
+                cursor: "pointer",
+                whiteSpace: "nowrap",
+                flexShrink: 0,
+                boxShadow: "0 2px 8px rgba(193,122,91,0.25)",
+              }}
+            >
+              save entry ✦
+            </motion.button>
           </div>
         </div>
       )}

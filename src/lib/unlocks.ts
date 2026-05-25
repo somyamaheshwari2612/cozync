@@ -1,4 +1,5 @@
 import { type Entry } from "@/db/cozync.db";
+import { getTodayLocal } from "./dateUtils";
 
 export interface UnlockRule {
   packId: string;
@@ -34,17 +35,21 @@ export function computeUnlockedPacks(entries: Entry[]): string[] {
 
 export function getLongestStreak(entries: Entry[]): number {
   if (!entries.length) return 0;
+  
+  // Sort entries chronologically safely
   const dates = [...new Set(entries.map((e) => e.date))].sort();
   let longest = 1;
   let current = 1;
+
   for (let i = 1; i < dates.length; i++) {
-    const prev = new Date(dates[i - 1]);
-    const curr = new Date(dates[i]);
+    const prev = new Date(dates[i - 1] + "T00:00:00");
+    const curr = new Date(dates[i] + "T00:00:00");
     const diff = (curr.getTime() - prev.getTime()) / (1000 * 60 * 60 * 24);
+
     if (diff === 1) {
       current++;
       longest = Math.max(longest, current);
-    } else {
+    } else if (diff > 1) {
       current = 1;
     }
   }
@@ -53,28 +58,37 @@ export function getLongestStreak(entries: Entry[]): number {
 
 export function getCurrentStreak(entries: Entry[]): number {
   if (!entries.length) return 0;
-  const dates = [...new Set(entries.map((e) => e.date))].sort().reverse();
-  const today = new Date().toISOString().split("T")[0];
-  if (dates[0] !== today && dates[0] !== getYesterday()) return 0;
+  
+  const todayStr = getTodayLocal();
+  const yesterdayStr = getYesterday();
+  const dateSet = new Set(entries.map((e) => e.date));
+
+  // Determine starting anchor node point matching application logic
+  let cursor = dateSet.has(todayStr) ? todayStr : yesterdayStr;
   let streak = 0;
-  let expected = dates[0] === today ? today : getYesterday();
-  for (const date of dates) {
-    if (date === expected) {
-      streak++;
-      expected = getPreviousDay(expected);
-    } else break;
+
+  while (dateSet.has(cursor)) {
+    streak++;
+    cursor = getPreviousDay(cursor);
   }
   return streak;
 }
 
+// Fixed standard manual local date string builder utility formatter
+function formatLocalDate(d: Date): string {
+  const pad = (n: number) => String(n).padStart(2, "0");
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+}
+
 function getYesterday(): string {
   const d = new Date();
+  // Safe adjustment inside explicit calendar lifecycle limits
   d.setDate(d.getDate() - 1);
-  return d.toISOString().split("T")[0];
+  return formatLocalDate(d);
 }
 
 function getPreviousDay(dateStr: string): string {
-  const d = new Date(dateStr);
+  const d = new Date(dateStr + "T00:00:00");
   d.setDate(d.getDate() - 1);
-  return d.toISOString().split("T")[0];
+  return formatLocalDate(d);
 }

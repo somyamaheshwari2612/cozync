@@ -16,11 +16,12 @@ import { StickersPage } from "@/components/StickersPage";
 import { TutorialHint } from "@/components/ui/TutorialHint";
 import { AboutModal } from "@/components/ui/AboutModal";
 import { Footer } from "@/components/ui/Footer";
+import { getTodayLocal } from "@/lib/dateUtils";
 
 export default function CalendarPage() {
-  const today = new Date();
-  const [year, setYear] = useState(today.getFullYear());
-  const [month, setMonth] = useState(today.getMonth() + 1);
+  const today = getTodayLocal();
+  const [year, setYear] = useState(new Date().getFullYear());
+  const [month, setMonth] = useState(new Date().getMonth() + 1);
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [isMobile, setIsMobile] = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(false);
@@ -80,8 +81,8 @@ export default function CalendarPage() {
   // Streak calculation
   let streak = 0;
   {
-   const todayStr = today.toLocaleDateString("en-CA");
-    const yesterday = new Date(today);
+    const todayStr = getTodayLocal();
+    const yesterday = new Date(new Date().toLocaleString("en-US", { timeZone: "Asia/Kolkata" }));
     yesterday.setDate(yesterday.getDate() - 1);
     const yesterdayStr = yesterday.toLocaleDateString("en-CA");
     const dateSet = new Set(allEntries.map(e => e.date));
@@ -91,6 +92,7 @@ export default function CalendarPage() {
       streak++;
       const d = new Date(cursor);
       d.setDate(d.getDate() - 1);
+      // Fixed: Walk the cursor back day-by-day instead of assigning a static today fallback string
       cursor = d.toLocaleDateString("en-CA");
     }
   }

@@ -4,6 +4,7 @@ import { useMemo } from "react";
 import { motion } from "framer-motion";
 import { DayCell } from "@/components/calendar/DayCell";
 import { type Entry } from "@/db/cozync.db";
+import { getTodayLocal } from "@/lib/dateUtils";
 
 interface CalendarGridProps {
   year: number;
@@ -34,7 +35,7 @@ export function CalendarGrid({
   selectedDate,
   onSelectDate,
 }: CalendarGridProps) {
- const today = new Date().toLocaleDateString("en-CA"); // "en-CA" gives YYYY-MM-DD in local time
+  const today = getTodayLocal();
 
   const { days, leadingBlanks } = useMemo(() => {
     const total = getDaysInMonth(year, month);
