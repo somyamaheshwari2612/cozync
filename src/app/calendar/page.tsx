@@ -17,6 +17,7 @@ import { TutorialHint } from "@/components/ui/TutorialHint";
 import { AboutModal } from "@/components/ui/AboutModal";
 import { Footer } from "@/components/ui/Footer";
 import { getTodayLocal } from "@/lib/dateUtils";
+import { DeluluQuote } from "@/components/ui/DeluluQuote";
 
 export default function CalendarPage() {
   const today = getTodayLocal();
@@ -311,6 +312,7 @@ export default function CalendarPage() {
             {activeNav === "Calendar" && (
               <>
                 <MonthNav year={year} month={month} onPrev={handlePrev} onNext={handleNext} />
+                <DeluluQuote />
                 <CalendarGrid
                   year={year}
                   month={month}
