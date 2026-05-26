@@ -47,54 +47,60 @@ function Particle({ delay, x, drift, emoji }: {
 // Plays a soft, cozy chime using Web Audio API — no external file needed
 function playUnlockChime() {
   try {
-    const ctx = new (window.AudioContext || (window as any).webkitAudioContext)();
+    const AudioCtx = window.AudioContext || (window as any).webkitAudioContext;
+    if (!AudioCtx) return;
 
-    const notes = [523.25, 659.25, 783.99, 1046.50]; // C5, E5, G5, C6
-    notes.forEach((freq, i) => {
-      const osc = ctx.createOscillator();
-      const gain = ctx.createGain();
+    const ctx = new AudioCtx();
 
-      osc.connect(gain);
-      gain.connect(ctx.destination);
+    // Resume in case context was suspended by browser autoplay policy
+    const resume = ctx.state === "suspended" ? ctx.resume() : Promise.resolve();
 
-      osc.type = "sine";
-      osc.frequency.setValueAtTime(freq, ctx.currentTime + i * 0.18);
+    resume.then(() => {
+      const notes = [523.25, 659.25, 783.99, 1046.50];
+      notes.forEach((freq, i) => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.type = "sine";
+        osc.frequency.setValueAtTime(freq, ctx.currentTime + i * 0.18);
+        gain.gain.setValueAtTime(0, ctx.currentTime + i * 0.18);
+        gain.gain.linearRampToValueAtTime(0.18, ctx.currentTime + i * 0.18 + 0.05);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + i * 0.18 + 0.6);
+        osc.start(ctx.currentTime + i * 0.18);
+        osc.stop(ctx.currentTime + i * 0.18 + 0.7);
+      });
 
-      gain.gain.setValueAtTime(0, ctx.currentTime + i * 0.18);
-      gain.gain.linearRampToValueAtTime(0.18, ctx.currentTime + i * 0.18 + 0.05);
-      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + i * 0.18 + 0.6);
-
-      osc.start(ctx.currentTime + i * 0.18);
-      osc.stop(ctx.currentTime + i * 0.18 + 0.7);
+      // Finishing sparkle
+      setTimeout(() => {
+        const osc2 = ctx.createOscillator();
+        const gain2 = ctx.createGain();
+        osc2.connect(gain2);
+        gain2.connect(ctx.destination);
+        osc2.type = "sine";
+        osc2.frequency.setValueAtTime(1568, ctx.currentTime);
+        gain2.gain.setValueAtTime(0.1, ctx.currentTime);
+        gain2.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.5);
+        osc2.start(ctx.currentTime);
+        osc2.stop(ctx.currentTime + 0.5);
+      }, notes.length * 180 + 100);
+    }).catch(() => {
+      // Audio blocked — fail silently
     });
 
-    // Soft finishing sparkle — higher octave
-    setTimeout(() => {
-      const osc2 = ctx.createOscillator();
-      const gain2 = ctx.createGain();
-      osc2.connect(gain2);
-      gain2.connect(ctx.destination);
-      osc2.type = "sine";
-      osc2.frequency.setValueAtTime(1568, ctx.currentTime);
-      gain2.gain.setValueAtTime(0.1, ctx.currentTime);
-      gain2.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.5);
-      osc2.start(ctx.currentTime);
-      osc2.stop(ctx.currentTime + 0.5);
-    }, notes.length * 180 + 100);
-
-  } catch (e) {
-    // Audio not available — fail silently
+  } catch {
+    // Audio not available
   }
 }
 
 export function UnlockCelebration({ pack, onDone, onUseStickers }: UnlockCelebrationProps) {
   const hasPlayed = useRef(false);
 
-  // Play chime once when pack appears
   useEffect(() => {
     if (pack && !hasPlayed.current) {
       hasPlayed.current = true;
-      setTimeout(playUnlockChime, 300);
+      // Attempt to play immediately — works if user has interacted with page
+      playUnlockChime();
     }
     if (!pack) hasPlayed.current = false;
   }, [pack]);
@@ -132,6 +138,7 @@ export function UnlockCelebration({ pack, onDone, onUseStickers }: UnlockCelebra
 
           {/* Card */}
           <motion.div
+          onClick={playUnlockChime} 
             initial={{ scale: 0.7, opacity: 0, y: 24 }}
             animate={{ scale: 1, opacity: 1, y: 0 }}
             exit={{ scale: 0.92, opacity: 0, y: 8 }}
