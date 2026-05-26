@@ -31,7 +31,7 @@ export function DayCell({
   const stickerDef = topSticker ? STICKER_MAP[topSticker.stickerId] : null;
   const wins     = entry?.wins?.filter(w => w.trim().length > 0) ?? [];
 
-  const showTodayRing = isToday && (!hasSelection || isSelected);
+  const showTodayRing = isToday;
 
   // Empty cells get a soft warm beige, logged cells get mood color
   const bgColor = isSelected
