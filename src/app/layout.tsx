@@ -9,6 +9,7 @@ import {
   Noto_Emoji,
   Cormorant_Upright,
 } from "next/font/google";
+import { GoogleAnalytics } from '@next/third-parties/google';
 
 const cormorant = Cormorant_Upright({
   weight: ["300", "400", "500", "600"],
@@ -66,6 +67,8 @@ export default function RootLayout({
       <body>{children}</body>
       <Analytics />
       <SpeedInsights />
+      {/* Use the unique ID generated for this specific project */}
+      <GoogleAnalytics gaId="G-7CZHLL25B3" />
     </html>
   );
 }
