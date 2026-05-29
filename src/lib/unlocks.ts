@@ -82,13 +82,12 @@ function formatLocalDate(d: Date): string {
 
 function getYesterday(): string {
   const d = new Date();
-  // Safe adjustment inside explicit calendar lifecycle limits
   d.setDate(d.getDate() - 1);
-  return formatLocalDate(d);
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
 }
 
 function getPreviousDay(dateStr: string): string {
-  const d = new Date(dateStr + "T00:00:00");
+  const d = new Date(dateStr + "T12:00:00"); // noon prevents DST edge cases
   d.setDate(d.getDate() - 1);
-  return formatLocalDate(d);
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
 }
