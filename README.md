@@ -1,36 +1,67 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Cozync ✦
 
-## Getting Started
+Cozync is a cozy, visual life-logging web app for remembering your days in a way that feels warm, personal, and human.
 
-First, run the development server:
+Instead of treating journaling like a productivity chore, Cozync turns daily moods, tiny wins, notes, and memories into a calm scrapbook you can revisit over time. It is built for people who want to capture their life gently — without pressure, without judgment, and without needing to sign in first.
+
+## ✨ What Cozync does
+
+- Track your days with a calendar-based journal experience
+- Log moods, notes, wins, and small moments of progress
+- Add stickers and unlock new visual collections as your story grows
+- Build streaks and reflect on your consistency over time
+- Keep everything local and personal, with a soft, cozy interface
+
+## 🌿 Core features
+
+- Daily entry logging with mood and note support
+- Calendar view for browsing past days and memories
+- Sticker collection system with unlockable packs
+- Streak tracking for journaling and mood logging
+- A warm, scrapbook-like UI designed to feel comforting rather than clinical
+- Local-first data persistence using IndexedDB via Dexie
+
+## 🛠️ Tech stack
+
+- Framework: Next.js 16
+- UI: React 19, TypeScript
+- Styling: Tailwind CSS
+- Animation: Framer Motion
+- State management: Zustand
+- Local database: Dexie
+
+## 🚀 Getting started
+
+Clone the repository and install dependencies:
+
+```bash
+npm install
+```
+
+Start the development server:
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Then open http://localhost:3000 in your browser.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## 📦 Project structure
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- src/app/ — app routes and main pages
+- src/components/ — UI components for the calendar, journal entry experience, stickers, and modals
+- src/store/ — Zustand stores for entries, user metadata, and stickers
+- src/db/ — database schema and local persistence setup
+- src/lib/ — helpers for dates, streaks, and unlock logic
 
-## Learn More
+## 🧠 How it works
 
-To learn more about Next.js, take a look at the following resources:
+Cozync stores your entries locally in the browser so you can start journaling immediately. Each day can hold a mood, notes, wins, and stickers, and the app uses those entries to build a visual record of your life over time.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## 🤝 Contributing
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Contributions are welcome. If you have ideas for new features, visual improvements, or better journaling flows, feel free to open an issue or submit a pull request.
 
-## Deploy on Vercel
+## 📄 License
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+This project is licensed under the MIT License. See the LICENSE file for more details.
