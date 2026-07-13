@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { type Entry } from "@/db/cozync.db";
 import { MOOD_MAP } from "@/constants/moods";
@@ -14,10 +14,15 @@ interface MonthStatsProps {
 }
 
 export function MonthStats({ entries, year, month }: MonthStatsProps) {
+  const [today, setToday] = useState("");
+
+  useEffect(() => {
+    setToday(getTodayLocal());
+  }, []);
+
   const stats = useMemo(() => {
     // Correctly find total days in the given month
     const daysInMonth = new Date(year, month, 0).getDate();
-    const today = getTodayLocal();
     const monthStr = `${year}-${String(month).padStart(2, "0")}`;
 
     // Only count days that actually belong to this month

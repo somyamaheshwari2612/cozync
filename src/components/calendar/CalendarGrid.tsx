@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { DayCell } from "@/components/calendar/DayCell";
 import { type Entry } from "@/db/cozync.db";
@@ -35,7 +35,11 @@ export function CalendarGrid({
   selectedDate,
   onSelectDate,
 }: CalendarGridProps) {
-  const today = getTodayLocal();
+  const [today, setToday] = useState("");
+
+  useEffect(() => {
+    setToday(getTodayLocal());
+  }, []);
 
   const { days, leadingBlanks } = useMemo(() => {
     const total = getDaysInMonth(year, month);

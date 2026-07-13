@@ -20,7 +20,6 @@ import { getTodayLocal } from "@/lib/dateUtils";
 import { DeluluQuote } from "@/components/ui/DeluluQuote";
 
 export default function CalendarPage() {
-  const today = getTodayLocal();
   const [year, setYear] = useState(new Date().getFullYear());
   const [month, setMonth] = useState(new Date().getMonth() + 1);
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
